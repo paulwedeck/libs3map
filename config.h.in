@@ -1,0 +1,7 @@
+#ifndef S3MAP_CONFIG_H
+#define S3MAP_CONFIG_H
+
+#cmakedefine IS_BE
+#cmakedefine PRIVATE_FILENAME
+
+#endif /*S3MAP_CONFIG_H*/
