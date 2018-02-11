@@ -48,8 +48,9 @@ int main(int argc, char** argv) {
 
 		s3map_readfile_name(handle, argc == 1 ? name : argv[i], &ex);
 		if(s3util_catch_exception(&ex)) {
-			printf("[%i] %s Map with%s (%i startres) checksum: %x\n", i,
+			printf("[%i] %s map%s with%s (%i startres) checksum: %x\n", i,
 			handle->single_player ? "Singleplayer" : "Multiplayer",
+			handle->edmguard ? " from editor" : "",
 			handle->contains_amazon ? " Amazons" : "out Amazons", handle->startres,
 			handle->checksum);
 
@@ -66,7 +67,7 @@ int main(int argc, char** argv) {
 			printf("[%i] %i settlers at %i\n", i, handle->settlers.arg, handle->settlers.pos);
 			printf("[%i] %i buildings at %i\n", i, handle->buildings.arg, handle->buildings.pos);
 
-			printf("[%i] must players be killed to win ? %s\n", i, handle->kill_wincond != 0 ? "Yes" : "No");
+			/*printf("[%i] must players be killed to win ? %s\n", i, handle->kill_wincond != 0 ? "Yes" : "No");
 			for(uint32_t p = 0;p != 10;p++) {
 				if(handle->building_wincond[p].player != 0xFF) {
 					printf("[%i] wincond: Player %is %i must be destroyed!\n", i, handle->building_wincond[p].player, handle->building_wincond[p].building);
@@ -127,7 +128,7 @@ int main(int argc, char** argv) {
 					printf("[%i] building %i is %i from player %i at (%i:%i); troops=%i\n", i, s, buildings[s].type, buildings[s].player, buildings[s].x, buildings[s].y, buildings[s].sword3);
 				}
 				s3util_free_func(&handle->memset, buildings);
-			}
+			}*/
 
 			/*
 			s3util_color_t* color;

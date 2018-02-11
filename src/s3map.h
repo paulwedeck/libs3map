@@ -155,6 +155,9 @@ struct s3map_t {
 
 	char* mapdesc;
 	char* maptips;
+
+	bool edmguard;
+	bool contains_unknownchunk;
 };
 
 struct s3map_playerinfo_t {

@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
 
 	glfwMakeContextCurrent(wnd);
 
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	onresize(wnd, map->map.arg*3, map->map.arg*2);
 

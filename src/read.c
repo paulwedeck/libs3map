@@ -13,6 +13,8 @@ void s3map_read_teaminfo(s3map_t* handle, uint32_t len, uint8_t key, s3util_exce
 void s3map_read_settlers(s3map_t* handle, uint32_t len, uint8_t key, s3util_exception_t** throws);
 void s3map_read_buildings(s3map_t* handle, uint32_t len, uint8_t key, s3util_exception_t** throws);
 void s3map_read_playerinfo(s3map_t* handle, uint32_t len, uint8_t key, s3util_exception_t** throws);
+void s3map_read_edmguard(s3map_t* handle, uint32_t len, uint8_t key, s3util_exception_t** throws);
+void s3map_read_unknownchunk(s3map_t* handle, uint32_t len, uint8_t key, s3util_exception_t** throws);
 
 void s3map_readfile_func(s3map_t* handle, void* arg,
 	bool (*read_func) (void*, void*, size_t),
@@ -132,6 +134,8 @@ void s3map_readfile(s3map_t* handle, s3util_exception_t** throws) {
 	#define S3MAP_CHUNK_WINCOND 10
 	#define S3MAP_CHUNK_MAPDESC 11
 	#define S3MAP_CHUNK_MAPTIPS 12
+	#define S3MAP_CHUNK_EDMGUARD 64
+	#define S3MAP_CHUNK_UNKNOWN 256
 
 	struct s3map_chunk_t chunks[] = {
 		{S3MAP_CHUNK_MAPINFO, s3map_read_mapinfo, 0, 0},
@@ -145,6 +149,8 @@ void s3map_readfile(s3map_t* handle, s3util_exception_t** throws) {
 		{S3MAP_CHUNK_WINCOND, s3map_read_wincond, 0, 0},
 		{S3MAP_CHUNK_MAPDESC, s3map_read_maptext, 0, 0},
 		{S3MAP_CHUNK_MAPTIPS, s3map_read_maptext, 0, 0},
+		{S3MAP_CHUNK_EDMGUARD, s3map_read_edmguard, 0, 0},
+		{S3MAP_CHUNK_UNKNOWN, s3map_read_unknownchunk, 0, 0},
 
 		{S3MAP_CHUNK_TEAMINFO | 1<<16, s3map_read_teaminfo, 0, 0},
 		{S3MAP_CHUNK_TEAMINFO | 2<<16, s3map_read_teaminfo, 0, 0},
@@ -175,6 +181,7 @@ void s3map_readfile(s3map_t* handle, s3util_exception_t** throws) {
 			chunk_known = true;
 		} else if(type > 1000000) { // some chunks are filled with random data, we will ignore them
 		} else {
+			// chunk 66 contains random data too, we ignore it here
 			uint32_t chunk_id = 0;
 			while(chunks[chunk_id].type != 0 && !chunk_known) {
 				if(chunks[chunk_id].type == type) {
@@ -605,10 +612,8 @@ void s3map_read_buildingdata(s3map_t* handle, s3map_building_t** buildingreturn,
 	s3map_internal_readDEC(handle, rawdata, handle->buildings.arg*12, &key, throws);
 	S3MAP_HANDLE_EXCEPTION(handle, throws, __FILE__, __func__, __LINE__);
 
-	*buildingreturn = s3util_alloc_func(&handle->memset, sizeof(s3map_building_t)*handle->buildings.arg, throws);
+	s3map_building_t* buildings = *buildingreturn = s3util_alloc_func(&handle->memset, sizeof(s3map_building_t)*handle->buildings.arg, throws);
 	S3MAP_HANDLE_EXCEPTION(handle, throws, __FILE__, __func__, __LINE__);
-
-	s3map_building_t* buildings = *buildingreturn;
 
 	for(uint32_t i = 0;i != handle->buildings.arg;i++) {
 		buildings[i].player = rawdata[i*12];
@@ -634,6 +639,46 @@ void s3map_read_buildingdata(s3map_t* handle, s3map_building_t** buildingreturn,
 			buildings[i].sword1 = 1;
 		}
 	}
+}
+
+// This chunk only exists on edm files; it should be 4 bytes long and contain 0xc040c040
+void s3map_read_edmguard(s3map_t* handle, uint32_t len, uint8_t key, s3util_exception_t** throws) {
+	if(len == 0) return;
+
+	if(len != 4) {
+		s3util_throw(&handle->memset, throws, S3UTIL_EXCEPTION_CONFLICTING_DATA, __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	uint32_t edmguard_byte = s3map_internal_read32LEDEC(handle, &key, throws);
+	S3MAP_HANDLE_EXCEPTION(handle, throws, __FILE__, __func__, __LINE__);
+
+	if(edmguard_byte != 0xc040c040) {
+		s3util_throw(&handle->memset, throws, S3UTIL_EXCEPTION_CONFLICTING_DATA, __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	handle->edmguard = true;
+}
+
+// The purpose of this chunk is unknown; it should be 4 bytes long and contain 0x2d1b0909
+void s3map_read_unknownchunk(s3map_t* handle, uint32_t len, uint8_t key, s3util_exception_t** throws) {
+	if(len == 0) return;
+
+	if(len != 4) {
+		s3util_throw(&handle->memset, throws, S3UTIL_EXCEPTION_CONFLICTING_DATA, __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	uint32_t unknown_byte = s3map_internal_read32LEDEC(handle, &key, throws);
+	S3MAP_HANDLE_EXCEPTION(handle, throws, __FILE__, __func__, __LINE__);
+
+	if(unknown_byte != 0x2d1b0909) {
+		s3util_throw(&handle->memset, throws, S3UTIL_EXCEPTION_CONFLICTING_DATA, __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	handle->contains_unknownchunk = true;
 }
 
 void s3map_read_stackdata(s3map_t* handle, s3map_stack_t** stackreturn, s3util_exception_t** throws) {
