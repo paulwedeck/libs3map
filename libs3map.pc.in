@@ -7,5 +7,5 @@ libdir=${prefix}/lib
 Name: libs3map
 Description: A library that reads map/edm files
 Version: @PROJECT_VERSION@
-Cflags: -I${includedir}
+Cflags: -I${includedir}/s3map
 Libs: -L${libdir} -ls3map

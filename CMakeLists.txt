@@ -27,7 +27,7 @@ find_package(s3util REQUIRED)
 configure_file(config.h.in ${PROJECT_BINARY_DIR}/config.h)
 configure_file(libs3map.pc.in ${PROJECT_BINARY_DIR}/libs3map.pc @ONLY)
 
-include_directories(src ${PROJECT_BINARY_DIR} ${s3util_INCLUDE_DIR})
+include_directories(src ${PROJECT_BINARY_DIR} ${s3util_INCLUDE_DIRS})
 
 
 #s3map
@@ -35,13 +35,13 @@ file(GLOB_RECURSE s3map_SOURCES "src/*.[ch]")
 
 add_library(s3map SHARED ${s3map_SOURCES})
 target_link_libraries(s3map s3util)
-target_include_directories(s3map PUBLIC $<INSTALL_INTERFACE:include>)
+target_include_directories(s3map PUBLIC $<INSTALL_INTERFACE:include/s3map>)
 
 add_executable(cli cli.c)
 target_link_libraries(cli s3map)
 
 write_basic_package_version_file(${PROJECT_BINARY_DIR}/s3mapConfigVersion.cmake COMPATIBILITY ExactVersion)
-configure_package_config_file(s3mapConfig.cmake.in s3mapConfig.cmake INSTALL_DESTINATION lib/cmake/s3map PATH_VARS CMAKE_INSTALL_PREFIX PROJECT_BINARY_DIR)
+configure_package_config_file(s3mapConfig.cmake.in s3mapConfig.cmake INSTALL_DESTINATION lib/cmake/s3map PATH_VARS CMAKE_INSTALL_PREFIX CMAKE_SOURCE_DIR)
 
 install(TARGETS s3map EXPORT s3mapTarget DESTINATION lib)
 install(EXPORT s3mapTarget DESTINATION lib/cmake/s3map)
@@ -49,7 +49,7 @@ install(EXPORT s3mapTarget DESTINATION lib/cmake/s3map)
 #for find_package on build dirs
 export(TARGETS s3map FILE s3mapTarget.cmake)
 
-install(FILES src/s3map.h DESTINATION include)
+install(FILES src/types.h src/s3map.h DESTINATION include/s3map)
 install(FILES ${PROJECT_BINARY_DIR}/libs3map.pc DESTINATION lib/pkgconfig)
 install(FILES ${PROJECT_BINARY_DIR}/s3mapConfigVersion.cmake ${PROJECT_BINARY_DIR}/s3mapConfig.cmake DESTINATION lib/cmake/s3map)
 install(FILES LICENSE DESTINATION share/doc/libs3map)
