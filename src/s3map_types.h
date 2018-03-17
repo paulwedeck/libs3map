@@ -42,8 +42,8 @@ typedef enum {
 	s3map_terrain_swamp1 = 21,
 
 	s3map_terrain_mud3 = 144,
-	s3map_terrain_mud2 = 23,
-	s3map_terrain_mud1 = 145,
+	s3map_terrain_mud2 = 145,
+	s3map_terrain_mud1 = 23,
 } s3map_terrain;
 
 typedef enum {

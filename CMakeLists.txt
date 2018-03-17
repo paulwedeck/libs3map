@@ -49,7 +49,7 @@ install(EXPORT s3mapTarget DESTINATION lib/cmake/s3map)
 #for find_package on build dirs
 export(TARGETS s3map FILE s3mapTarget.cmake)
 
-install(FILES src/types.h src/s3map.h DESTINATION include/s3map)
+install(FILES src/s3map_types.h src/s3map.h DESTINATION include/s3map)
 install(FILES ${PROJECT_BINARY_DIR}/libs3map.pc DESTINATION lib/pkgconfig)
 install(FILES ${PROJECT_BINARY_DIR}/s3mapConfigVersion.cmake ${PROJECT_BINARY_DIR}/s3mapConfig.cmake DESTINATION lib/cmake/s3map)
 install(FILES LICENSE DESTINATION share/doc/libs3map)
