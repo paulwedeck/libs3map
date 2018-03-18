@@ -12,7 +12,7 @@ typedef enum {
 	s3map_terrain_water8 = 7,
 
 	s3map_terrain_grass = 16,
-	s3map_terrain_strand = 48,
+	s3map_terrain_shore = 48,
 
 	s3map_terrain_river1 = 96,
 	s3map_terrain_river2 = 97,
